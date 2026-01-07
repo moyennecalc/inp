@@ -9,31 +9,31 @@
     <h1>Calcul de moyenne</h1>
 
     <label>Maths :</label>
-    <input type="number" id="maths"><br><br>
+    <input type="number" id="maths" min="0" max="20"><br><br>
 
     <label>Physique :</label>
-    <input type="number" id="physique"><br><br>
+    <input type="number" id="physique" min="0" max="20"><br><br>
 
     <label>Chimie :</label>
-    <input type="number" id="chimie"><br><br>
+    <input type="number" id="chimie" min="0" max="20"><br><br>
 
     <label>Biologie :</label>
-    <input type="number" id="biologie"><br><br>
+    <input type="number" id="biologie" min="0" max="20"><br><br>
 
     <label>Info :</label>
-    <input type="number" id="info"><br><br>
+    <input type="number" id="info" min="0" max="20"><br><br>
     
     <label>Culture G :</label>
-    <input type="number" id="cultureg"><br><br>
+    <input type="number" id="cultureg" min="0" max="20"><br><br>
 
     <label>LV2 :</label>
-    <input type="number" id="LV2"><br><br>
+    <input type="number" id="LV2" min="0" max="20"><br><br>
 
     <label>Anglais :</label>
-    <input type="number" id="anglais"><br><br>
+    <input type="number" id="anglais" min="0" max="20"><br><br>
 
     <label>Sport :</label>
-    <input type="number" id="sport"><br><br>
+    <input type="number" id="sport" min="0" max="20"><br><br>
 
     <button onclick="calculerMoyenne()">Calculer</button>
 
@@ -54,8 +54,11 @@
 
             let moyenne = (7*maths + 7*physique + 4*chimie + 3*biologie + 3*info + 1.5*cultureg + 1.5*LV2 + 1.5*anglais + 1.5*sport) / 30;
 
+            let mention = moyenne >= 10 ? "Admis ✅" : "Ajourné ❌";
+
             document.getElementById("resultat").textContent =
-                "Moyenne : " + moyenne.toFixed(2);
+                "Moyenne : " + moyenne.toFixed(2) + " — " + mention;
+
         }
     </script>
 
