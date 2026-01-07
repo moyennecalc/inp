@@ -44,39 +44,37 @@ const matieres = [
 
 const container = document.getElementById("matieres-container");
 
-// Génération dynamique du HTML
-matieres.forEach(m => {
+// Génération dynamique
+matieres.forEach(m=>{
     const div = document.createElement("div");
-    div.className = "matiere";
-    div.id = m.id;
-    div.dataset.coef = m.coef;
+    div.className="matiere";
+    div.id=m.id;
+    div.dataset.coef=m.coef;
 
-    let html = `<h3>${m.nom} <span class="coef">(coef ${m.coef})</span></h3>`;
-    
-    if(m.ds) {
-        html += `<strong>DS</strong><div id="${m.id}-controles"><input type="number" min="0" max="20"></div>
-                 <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-controles')" style="display:none;">+</button>
-                 <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-controles')" style="display:none;">🗑</button>
-                 <br><br>
-                 <strong>Tests</strong><div id="${m.id}-tests"><input type="number" min="0" max="5"></div>
-                 <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-tests')" style="display:none;">+</button>
-                 <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-tests')" style="display:none;">🗑</button>`;
+    let html=`<h3>${m.nom} <span class="coef">(coef ${m.coef})</span></h3>`;
+    if(m.ds){
+        html+=`<strong>DS</strong><div id="${m.id}-controles"><input type="number" min="0" max="20"></div>
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-controles')" style="display:none;">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-controles')" style="display:none;">🗑</button>
+               <br><br>
+               <strong>Tests</strong><div id="${m.id}-tests"><input type="number" min="0" max="5"></div>
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-tests')" style="display:none;">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-tests')" style="display:none;">🗑</button>`;
     } else {
-        html += `<div id="${m.id}-notes"><input type="number" min="0" max="20"></div>
-                 <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-notes')" style="display:none;">+</button>
-                 <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-notes')" style="display:none;">🗑</button>`;
+        html+=`<div id="${m.id}-notes"><input type="number" min="0" max="20"></div>
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-notes')" style="display:none;">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-notes')" style="display:none;">🗑</button>`;
     }
-    div.innerHTML = html;
+    div.innerHTML=html;
     container.appendChild(div);
 });
 
-// --- Fonctions principales ---
-function ajouterNote(id) {
-    const div = document.getElementById(id);
-    const inputs = div.querySelectorAll("input");
-    const last = inputs[inputs.length-1];
-    if(last.value==="") return;
-    const input = document.createElement("input");
+// --- Ajouter / supprimer note ---
+function ajouterNote(id){
+    const div=document.getElementById(id);
+    const inputs=div.querySelectorAll("input");
+    if(inputs[inputs.length-1].value==="") return;
+    const input=document.createElement("input");
     input.type="number";
     input.min=0;
     input.max=id.includes("tests")?5:20;
@@ -85,100 +83,112 @@ function ajouterNote(id) {
     majBoutons(div);
 }
 
-function supprimerDerniere(id) {
-    const div = document.getElementById(id);
-    const inputs = div.querySelectorAll("input");
-    if(inputs.length<=1){ inputs[0].value=""; } 
-    else { div.removeChild(inputs[inputs.length-1].previousSibling); div.removeChild(inputs[inputs.length-1]); }
+function supprimerDerniere(id){
+    const div=document.getElementById(id);
+    const inputs=div.querySelectorAll("input");
+    if(inputs.length<=1){inputs[0].value="";}
+    else{div.removeChild(inputs[inputs.length-1].previousSibling); div.removeChild(inputs[inputs.length-1]);}
     majBoutons(div);
 }
 
-function majBoutons(div) {
-    div.querySelectorAll("input").forEach(input=>{
-        input.addEventListener("input",()=> majBoutons(div));
-    });
-    const inputs = div.querySelectorAll("input");
-    const last = inputs[inputs.length-1];
-    const btns = div.parentNode.querySelectorAll("button");
-    btns.forEach(b=>{
-        if(b.classList.contains("bouton-ajouter") || b.classList.contains("bouton-supprimer")){
-            b.style.display = last.value!==""?"inline-block":"none";
-        }
-    });
+// --- Mise à jour boutons + et 🗑 ---
+function majBoutons(div){
+    const inputs=div.querySelectorAll("input");
+    const last=inputs[inputs.length-1];
+    const btns=div.querySelectorAll(".bouton-ajouter, .bouton-supprimer");
+    btns.forEach(b=>b.style.display=last.value!==""?"inline-block":"none");
 }
 
-// --- Calcul de moyennes ---
-function moyenneMatiere(id) {
-    const inputs = document.querySelectorAll(`#${id} input`);
+// --- Calculs de moyennes ---
+function moyenneMatiere(id){
+    const inputs=document.querySelectorAll(`#${id} input`);
     let somme=0,count=0;
-    inputs.forEach(i=>{ const val=Number(i.value); if(!isNaN(val)){ somme+=val; count++; }});
+    inputs.forEach(i=>{ const v=Number(i.value); if(!isNaN(v)){somme+=v; count++;}});
     return count>0?somme/count:0;
 }
-function moyenneMaths() {
-    const mCont = moyenneMatiere("maths-controles");
-    const mTests = moyenneMatiere("maths-tests");
+function moyenneMaths(){
+    const mCont=moyenneMatiere("maths-controles");
+    const mTests=moyenneMatiere("maths-tests");
     return (mCont + mTests/6)/(1+1/6);
 }
 
-function calculerMoyenne() {
-    let mg = 7*moyenneMaths() +
-             7*moyenneMatiere("physique-notes") +
-             4*moyenneMatiere("chimie-notes") +
-             3*moyenneMatiere("biologie-notes") +
-             3*moyenneMatiere("info-notes") +
-             1.5*moyenneMatiere("cultureg-notes") +
-             1.5*moyenneMatiere("LV2-notes") +
-             1.5*moyenneMatiere("anglais-notes") +
-             1.5*moyenneMatiere("sport-notes");
-    mg /= 30;
-    document.getElementById("resultat").textContent = "Moyenne générale : "+mg.toFixed(2);
+// --- Calcul moyenne générale ---
+function calculerMoyenne(){
+    let mg=7*moyenneMaths()+
+           7*moyenneMatiere("physique-notes")+
+           4*moyenneMatiere("chimie-notes")+
+           3*moyenneMatiere("biologie-notes")+
+           3*moyenneMatiere("info-notes")+
+           1.5*moyenneMatiere("cultureg-notes")+
+           1.5*moyenneMatiere("LV2-notes")+
+           1.5*moyenneMatiere("anglais-notes")+
+           1.5*moyenneMatiere("sport-notes");
+    mg/=30;
+    document.getElementById("resultat").textContent="Moyenne générale : "+mg.toFixed(2);
     if(document.getElementById("toggle-bg").checked) colorerFond();
 }
 
 // --- Boutons globaux ---
-document.getElementById("toggle-coefs").addEventListener("change", function(){
+document.getElementById("toggle-coefs").addEventListener("change",function(){
     document.querySelectorAll(".coef").forEach(c=>c.style.display=this.checked?"inline":"none");
 });
-document.getElementById("toggle-notes").addEventListener("change", function(){
+
+document.getElementById("toggle-notes").addEventListener("change",function(){
     document.querySelectorAll(".matiere div[id]").forEach(d=>d.classList.toggle("notes-hidden",this.checked));
+    document.getElementById("resultat").style.display=this.checked?"none":"block";
+    if(this.checked) document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
-document.getElementById("supprimer-tout").addEventListener("click", function(){
+
+document.getElementById("supprimer-tout").addEventListener("click",function(){
     if(!confirm("Voulez-vous vraiment supprimer toutes les notes ?")) return;
     document.querySelectorAll(".matiere div[id] input").forEach(i=>i.value="");
     document.querySelectorAll(".matiere div[id] br").forEach(br=>br.remove());
     document.querySelectorAll(".bouton-ajouter, .bouton-supprimer").forEach(b=>b.style.display="none");
+    document.getElementById("resultat").textContent="";
+    document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
-document.getElementById("toggle-bg").addEventListener("change", function(){
+
+document.getElementById("toggle-bg").addEventListener("change",function(){
     if(this.checked) colorerFond(); 
     else document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
 
-// --- Fonction de fond dégradé selon moyenne d'une matière ---
-function colorerFond() {
+// --- Fond dégradé smooth ---
+function colorerFond(){
     matieres.forEach(m=>{
-        let moyenne;
-        if(m.ds) moyenne = moyenneMaths();
-        else moyenne = moyenneMatiere(`${m.id}-notes`);
-        let color = noteToColor(moyenne);
-        document.getElementById(m.id).style.background = color;
+        let moyenne = m.ds ? moyenneMaths() : moyenneMatiere(`${m.id}-notes`);
+        document.getElementById(m.id).style.background=noteToColorSmooth(moyenne);
     });
 }
 
-// --- Conversion note → couleur ---
-function noteToColor(note){
-    // 0-5 rouge->orange, 5-10 orange->vert, 10-15 vert->bleu, 15-20 bleu
-    let r=0,g=0,b=0;
-    if(note<=5){
-        r=255; g=Math.round(51*note); b=0; // 0 rouge pur -> 5 orange
-    } else if(note<=10){
-        r=Math.round(255-(25.5*(note-5))); g=255; b=0; // orange->vert
-    } else if(note<=15){
-        r=0; g=Math.round(255-(25.5*(note-10))); b=Math.round(25.5*(note-10)); // vert->bleu
+function noteToColorSmooth(note){
+    // RGB interpolation: 0=red, 10=green, 20=blue
+    note=Math.max(0,Math.min(20,note));
+    let r,g,b;
+    if(note<=10){
+        // 0->10 : rouge->vert
+        let t=note/10;
+        r=Math.round(255*(1-t));
+        g=Math.round(255*t);
+        b=0;
     } else {
-        r=0; g=128; b=255; // bleu vif
+        // 10->20 : vert->bleu
+        let t=(note-10)/10;
+        r=0;
+        g=Math.round(255*(1-t));
+        b=Math.round(255*t);
     }
     return `rgb(${r},${g},${b})`;
 }
+
+// --- Initialisation boutons pour chaque matière ---
+document.querySelectorAll(".matiere div[id]").forEach(div=>{
+    div.querySelectorAll("input").forEach(input=>{
+        input.addEventListener("input",()=>majBoutons(div));
+    });
+    majBoutons(div);
+});
 </script>
 </body>
 </html>
+
