@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <title>Calcul de moyenne</title>
 <style>
-body { font-family: Arial, sans-serif; transition: background 1s; }
+body { font-family: Arial, sans-serif; background:white; }
 .global-controls { margin-bottom: 20px; display: flex; align-items: center; flex-wrap: wrap; gap:10px; }
 .global-controls button, .global-controls label { margin-right: 10px; }
-#matieres-container { display: flex; flex-direction: column; gap: 20px; transition: all 0.5s; }
+#matieres-container { display: flex; flex-direction: column; gap: 20px; }
 .matiere { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; width: 400px; box-sizing:border-box; }
 .matiere input { margin-top: 5px; }
-.bouton-ajouter, .bouton-supprimer { margin-top: 5px; margin-right: 5px; }
+.bouton-ajouter, .bouton-supprimer { margin-top: 5px; margin-right: 5px; display:inline-block; }
 .coef { font-weight: bold; display: none; }
 .nb-notes { font-weight: normal; color: #555; display: none; margin-left: 5px; }
 .notes-hidden input { display: none !important; }
@@ -65,17 +65,17 @@ matieres.forEach(m=>{
     if(m.ds){
         html+=`<strong class="label-ds">DS</strong>
                <div id="${m.id}-controles"><input type="number" min="0" max="20"></div>
-               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-controles')" style="display:none;">+</button>
-               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-controles')" style="display:none;">🗑</button>
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-controles')">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-controles')">🗑</button>
                <br><br>
                <strong class="label-tests">Tests</strong>
                <div id="${m.id}-tests"><input type="number" min="0" max="5"></div>
-               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-tests')" style="display:none;">+</button>
-               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-tests')" style="display:none;">🗑</button>`;
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-tests')">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-tests')">🗑</button>`;
     } else {
         html+=`<div id="${m.id}-notes"><input type="number" min="0" max="20"></div>
-               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-notes')" style="display:none;">+</button>
-               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-notes')" style="display:none;">🗑</button>`;
+               <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-notes')">+</button>
+               <button class="bouton-supprimer" onclick="supprimerDerniere('${m.id}-notes')">🗑</button>`;
     }
     div.innerHTML=html;
     container.appendChild(div);
@@ -93,7 +93,6 @@ function ajouterNote(id){
     input.max=id.includes("tests")?5:20;
     div.appendChild(document.createElement("br"));
     div.appendChild(input);
-    majBoutons(div);
     majCompteur(div);
 }
 
@@ -102,16 +101,7 @@ function supprimerDerniere(id){
     const inputs=div.querySelectorAll("input");
     if(inputs.length<=1){inputs[0].value="";} 
     else {div.removeChild(inputs[inputs.length-1].previousSibling); div.removeChild(inputs[inputs.length-1]);}
-    majBoutons(div);
     majCompteur(div);
-}
-
-// --- Mise à jour boutons + et 🗑 ---
-function majBoutons(div){
-    const inputs=div.querySelectorAll("input");
-    const last=inputs[inputs.length-1];
-    const boutons = Array.from(div.parentNode.querySelectorAll(".bouton-ajouter, .bouton-supprimer"));
-    boutons.forEach(b=>b.style.display=last.value!==""?"inline-block":"none");
 }
 
 // --- Compteur de notes ---
@@ -165,23 +155,18 @@ document.getElementById("toggle-notes").addEventListener("change",function(){
     const hide = this.checked;
     document.querySelectorAll(".matiere").forEach(d=>{
         d.classList.toggle("notes-hidden",hide);
-        d.style.height="auto"; // uniformisation hauteur
+        d.style.height="auto"; // uniformisation
     });
     document.querySelectorAll(".label-ds, .label-tests").forEach(e=>e.style.display=hide?"none":"inline");
     document.getElementById("resultat").style.display=hide?"none":"block";
-    document.body.style.transition="none";
     document.body.style.background="white";
-    setTimeout(()=>{document.body.style.transition="background 1s";},0);
 });
 document.getElementById("supprimer-tout").addEventListener("click",function(){
     document.querySelectorAll(".matiere div[id] input").forEach(i=>i.value="");
     document.querySelectorAll(".matiere div[id] br").forEach(br=>br.remove());
-    document.querySelectorAll(".bouton-ajouter, .bouton-supprimer").forEach(b=>b.style.display="none");
     document.querySelectorAll(".nb-notes").forEach(c=>c.textContent="[0]");
     document.getElementById("resultat").textContent="";
-    document.body.style.transition="none";
     document.body.style.background="white";
-    setTimeout(()=>{document.body.style.transition="background 1s";},0);
 });
 
 // --- Fond dégradé global ---
@@ -219,15 +204,16 @@ document.getElementById("display-mode").addEventListener("input",function(){
     }
 });
 
-// --- Initialisation boutons et compteurs ---
+// --- Initialisation compteurs et boutons (toujours visibles après 1ère note) ---
 document.querySelectorAll(".matiere div[id]").forEach(div=>{
     div.querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{
-        majBoutons(div);
         majCompteur(div);
         if(document.getElementById("toggle-bg").checked) calculerMoyenne();
     }));
-    majBoutons(div);
     majCompteur(div);
+    // Rendre les boutons + et corbeille visibles dès la 1ère note
+    const boutons = Array.from(div.parentNode.querySelectorAll(".bouton-ajouter, .bouton-supprimer"));
+    boutons.forEach(b=>b.style.display="inline-block");
 });
 </script>
 
