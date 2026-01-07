@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <title>Calcul de moyenne</title>
 <style>
-    body { font-family: Arial, sans-serif; }
-    .matiere { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; width: 400px; position: relative; transition: background 0.5s; }
-    .bouton-ajouter, .bouton-supprimer { margin-top: 5px; margin-right: 5px; }
-    .coef { font-weight: bold; display: none; }
-    .notes-hidden input { display: none; }
-    .global-controls { margin-bottom: 20px; }
-    .global-controls button, .global-controls label { margin-right: 10px; }
+body { font-family: Arial, sans-serif; }
+.matiere { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; width: 400px; position: relative; transition: background 0.5s; }
+.bouton-ajouter, .bouton-supprimer { margin-top: 5px; margin-right: 5px; }
+.coef { font-weight: bold; display: none; }
+.notes-hidden input { display: none; }
+.global-controls { margin-bottom: 20px; }
+.global-controls button, .global-controls label { margin-right: 10px; }
+.compteur { font-size: 0.9em; color: #555; margin-left: 10px; }
 </style>
 </head>
 <body>
@@ -51,7 +52,7 @@ matieres.forEach(m=>{
     div.id=m.id;
     div.dataset.coef=m.coef;
 
-    let html=`<h3>${m.nom} <span class="coef">(coef ${m.coef})</span></h3>`;
+    let html=`<h3>${m.nom} <span class="coef">(coef ${m.coef})</span> <span class="compteur">nb note: 0</span></h3>`;
     if(m.ds){
         html+=`<strong>DS</strong><div id="${m.id}-controles"><input type="number" min="0" max="20"></div>
                <button class="bouton-ajouter" onclick="ajouterNote('${m.id}-controles')" style="display:none;">+</button>
@@ -73,7 +74,8 @@ matieres.forEach(m=>{
 function ajouterNote(id){
     const div=document.getElementById(id);
     const inputs=div.querySelectorAll("input");
-    if(inputs[inputs.length-1].value==="") return;
+    const last=inputs[inputs.length-1];
+    if(last.value==="") return;
     const input=document.createElement("input");
     input.type="number";
     input.min=0;
@@ -81,29 +83,40 @@ function ajouterNote(id){
     div.appendChild(document.createElement("br"));
     div.appendChild(input);
     majBoutons(div);
+    majCompteur(div);
 }
 
 function supprimerDerniere(id){
     const div=document.getElementById(id);
     const inputs=div.querySelectorAll("input");
-    if(inputs.length<=1){inputs[0].value="";}
-    else{div.removeChild(inputs[inputs.length-1].previousSibling); div.removeChild(inputs[inputs.length-1]);}
+    if(inputs.length<=1){inputs[0].value="";} 
+    else {div.removeChild(inputs[inputs.length-1].previousSibling); div.removeChild(inputs[inputs.length-1]);}
     majBoutons(div);
+    majCompteur(div);
 }
 
 // --- Mise à jour boutons + et 🗑 ---
 function majBoutons(div){
     const inputs=div.querySelectorAll("input");
     const last=inputs[inputs.length-1];
-    const btns=div.querySelectorAll(".bouton-ajouter, .bouton-supprimer");
-    btns.forEach(b=>b.style.display=last.value!==""?"inline-block":"none");
+    const boutons = Array.from(div.parentNode.querySelectorAll(".bouton-ajouter, .bouton-supprimer"));
+    boutons.forEach(b=>b.style.display=last.value!==""?"inline-block":"none");
+}
+
+// --- Compteur de notes ---
+function majCompteur(div){
+    const compteur = div.parentNode.querySelector(".compteur");
+    const inputs = div.querySelectorAll("input");
+    let nb=0;
+    inputs.forEach(i=>{if(i.value!=="") nb++;});
+    compteur.textContent="nb note: "+nb;
 }
 
 // --- Calculs de moyennes ---
 function moyenneMatiere(id){
     const inputs=document.querySelectorAll(`#${id} input`);
     let somme=0,count=0;
-    inputs.forEach(i=>{ const v=Number(i.value); if(!isNaN(v)){somme+=v; count++;}});
+    inputs.forEach(i=>{ const v=Number(i.value); if(!isNaN(v)) {somme+=v; count++;} });
     return count>0?somme/count:0;
 }
 function moyenneMaths(){
@@ -124,7 +137,9 @@ function calculerMoyenne(){
            1.5*moyenneMatiere("anglais-notes")+
            1.5*moyenneMatiere("sport-notes");
     mg/=30;
-    document.getElementById("resultat").textContent="Moyenne générale : "+mg.toFixed(2);
+    const resElt=document.getElementById("resultat");
+    resElt.textContent="Moyenne générale : "+mg.toFixed(2);
+    resElt.style.display="block";
     if(document.getElementById("toggle-bg").checked) colorerFond();
 }
 
@@ -132,47 +147,46 @@ function calculerMoyenne(){
 document.getElementById("toggle-coefs").addEventListener("change",function(){
     document.querySelectorAll(".coef").forEach(c=>c.style.display=this.checked?"inline":"none");
 });
-
 document.getElementById("toggle-notes").addEventListener("change",function(){
     document.querySelectorAll(".matiere div[id]").forEach(d=>d.classList.toggle("notes-hidden",this.checked));
-    document.getElementById("resultat").style.display=this.checked?"none":"block";
+    const res=document.getElementById("resultat");
+    res.style.display=this.checked?"none":"block";
     if(this.checked) document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
-
 document.getElementById("supprimer-tout").addEventListener("click",function(){
     if(!confirm("Voulez-vous vraiment supprimer toutes les notes ?")) return;
     document.querySelectorAll(".matiere div[id] input").forEach(i=>i.value="");
     document.querySelectorAll(".matiere div[id] br").forEach(br=>br.remove());
     document.querySelectorAll(".bouton-ajouter, .bouton-supprimer").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".compteur").forEach(c=>c.textContent="nb note: 0");
     document.getElementById("resultat").textContent="";
     document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
-
 document.getElementById("toggle-bg").addEventListener("change",function(){
-    if(this.checked) colorerFond(); 
+    if(this.checked) colorerFond();
     else document.querySelectorAll(".matiere").forEach(d=>d.style.background="white");
 });
 
-// --- Fond dégradé smooth ---
+// --- Fond dégradé fluide ---
 function colorerFond(){
     matieres.forEach(m=>{
         let moyenne = m.ds ? moyenneMaths() : moyenneMatiere(`${m.id}-notes`);
-        document.getElementById(m.id).style.background=noteToColorSmooth(moyenne);
+        const div=document.getElementById(m.id);
+        const couleur = noteToColorSmooth(moyenne);
+        div.style.transition="background 1s";
+        div.style.background=couleur;
     });
 }
 
 function noteToColorSmooth(note){
-    // RGB interpolation: 0=red, 10=green, 20=blue
     note=Math.max(0,Math.min(20,note));
     let r,g,b;
     if(note<=10){
-        // 0->10 : rouge->vert
         let t=note/10;
         r=Math.round(255*(1-t));
         g=Math.round(255*t);
         b=0;
     } else {
-        // 10->20 : vert->bleu
         let t=(note-10)/10;
         r=0;
         g=Math.round(255*(1-t));
@@ -181,14 +195,19 @@ function noteToColorSmooth(note){
     return `rgb(${r},${g},${b})`;
 }
 
-// --- Initialisation boutons pour chaque matière ---
+// --- Initialisation boutons et compteurs ---
 document.querySelectorAll(".matiere div[id]").forEach(div=>{
-    div.querySelectorAll("input").forEach(input=>{
-        input.addEventListener("input",()=>majBoutons(div));
-    });
+    div.querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{
+        majBoutons(div);
+        majCompteur(div);
+        if(document.getElementById("toggle-bg").checked) colorerFond();
+    }));
     majBoutons(div);
+    majCompteur(div);
 });
 </script>
+
 </body>
 </html>
+
 
