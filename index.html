@@ -11,11 +11,29 @@
     <label>Maths :</label>
     <input type="number" id="maths"><br><br>
 
-    <label>Français :</label>
-    <input type="number" id="francais"><br><br>
+    <label>Physique :</label>
+    <input type="number" id="physique"><br><br>
 
-    <label>Histoire :</label>
-    <input type="number" id="histoire"><br><br>
+    <label>Chimie :</label>
+    <input type="number" id="chimie"><br><br>
+
+    <label>Biologie :</label>
+    <input type="number" id="biologie"><br><br>
+
+    <label>Info :</label>
+    <input type="number" id="info"><br><br>
+    
+    <label>Culture G :</label>
+    <input type="number" id="cultureg"><br><br>
+
+    <label>LV2 :</label>
+    <input type="number" id="LV2"><br><br>
+
+    <label>Anglais :</label>
+    <input type="number" id="Anglais"><br><br>
+
+    <label>Sport :</label>
+    <input type="number" id="Sport"><br><br>
 
     <button onclick="calculerMoyenne()">Calculer</button>
 
@@ -24,8 +42,11 @@
     <script>
         function calculerMoyenne() {
             let maths = Number(document.getElementById("maths").value);
-            let francais = Number(document.getElementById("francais").value);
-            let histoire = Number(document.getElementById("histoire").value);
+            let physique = Number(document.getElementById("physique").value);
+            let chimie = Number(document.getElementById("chimie").value);
+            let biologie = Number(document.getElementById("biologie").value);
+            let info = Number(document.getElementById("info").value);
+            
 
             let moyenne = (maths + francais + histoire) / 3;
 
